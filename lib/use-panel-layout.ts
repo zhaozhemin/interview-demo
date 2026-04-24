@@ -25,10 +25,20 @@ export function usePanelLayout() {
     }
 
     setOrderedPanels((current) => {
-      const oldIndex = current.findIndex((panel) => panel.id === active.id);
-      const newIndex = current.findIndex((panel) => panel.id === over.id);
+      const visiblePanels = current.filter((panel) => openIds.includes(panel.id));
+      const oldIndex = visiblePanels.findIndex((panel) => panel.id === active.id);
+      const newIndex = visiblePanels.findIndex((panel) => panel.id === over.id);
 
-      return arrayMove(current, oldIndex, newIndex);
+      if (oldIndex === -1 || newIndex === -1) {
+        return current;
+      }
+
+      const reorderedVisiblePanels = arrayMove(visiblePanels, oldIndex, newIndex);
+      let nextVisibleIndex = 0;
+
+      return current.map((panel) =>
+        openIds.includes(panel.id) ? reorderedVisiblePanels[nextVisibleIndex++] : panel,
+      );
     });
   };
 

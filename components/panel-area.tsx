@@ -20,6 +20,7 @@ import { PanelColumn } from "@/components/panel-column";
 import { PanelColumnPreview } from "@/components/panel-column-preview";
 import { useCoarsePointer } from "@/lib/use-coarse-pointer";
 import { useHorizontalAutoPan } from "@/lib/use-horizontal-auto-pan";
+import { usePanelViewportAnchor } from "@/lib/use-panel-viewport-anchor";
 
 type PanelAreaProps = {
   panels: Panel[];
@@ -82,6 +83,12 @@ export function PanelArea({ panels, onReorder, onClose }: PanelAreaProps) {
 
     return overIndex > activeIndex ? "after" : "before";
   };
+
+  usePanelViewportAnchor({
+    enabled: coarsePointer && activeId === null,
+    panels,
+    scrollerRef,
+  });
 
   return (
     <section
