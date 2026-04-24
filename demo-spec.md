@@ -74,3 +74,24 @@ Implement a React demo based on `s.png`.
 - Panel content is empty for this demo.
 - Desktop drag-and-drop works.
 - Mobile drag-and-drop uses a separate implementation path from desktop and still needs validation on real devices.
+
+## Implementation Notes
+
+- `app/page.tsx` is the client boundary for the interactive UI.
+- Nested components and hooks do not declare `"use client"` unless they need to be imported directly from a server component entry.
+- Page-level panel state lives in `usePanelLayout`, which owns:
+  - panel order
+  - open/closed panel state
+  - panel toggle and close actions
+  - drag-end reorder handling
+  - the derived visible panel list
+- `PanelArea` keeps drag lifecycle orchestration, while smaller extracted units own focused behavior:
+  - `PanelColumnFrame` renders the shared panel shell and tab bar
+  - `PanelColumnPreview` renders the drag overlay preview
+  - `useCoarsePointer` owns pointer-type detection
+  - `useHorizontalAutoPan` owns mobile edge auto-pan
+- Shared layout sizing is centralized in CSS custom properties in `app/globals.css`:
+  - `--sidebar-width`
+  - `--panel-mobile-width`
+  - `--panel-desktop-width`
+- Sidebar width, panel width, and panel-area offset should reference those variables instead of repeating hard-coded values.

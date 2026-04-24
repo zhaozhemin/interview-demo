@@ -1,6 +1,4 @@
-"use client";
-
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -10,7 +8,6 @@ import {
   useSensor,
   useSensors,
   type DragEndEvent,
-  type DragMoveEvent,
   type DragOverEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
@@ -19,7 +16,10 @@ import {
   horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import type { Panel, PanelId } from "@/lib/panels";
-import { PanelColumn, PanelColumnPreview } from "@/components/panel-column";
+import { PanelColumn } from "@/components/panel-column";
+import { PanelColumnPreview } from "@/components/panel-column-preview";
+import { useCoarsePointer } from "@/lib/use-coarse-pointer";
+import { useHorizontalAutoPan } from "@/lib/use-horizontal-auto-pan";
 
 type PanelAreaProps = {
   panels: Panel[];
@@ -30,25 +30,8 @@ type PanelAreaProps = {
 export function PanelArea({ panels, onReorder, onClose }: PanelAreaProps) {
   const [activeId, setActiveId] = useState<PanelId | null>(null);
   const [overId, setOverId] = useState<PanelId | null>(null);
-  const [coarsePointer, setCoarsePointer] = useState(false);
+  const coarsePointer = useCoarsePointer();
   const scrollerRef = useRef<HTMLElement | null>(null);
-  const scrollVelocityRef = useRef(0);
-  const animationFrameRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(pointer: coarse)");
-
-    const updatePointerType = () => {
-      setCoarsePointer(mediaQuery.matches);
-    };
-
-    updatePointerType();
-    mediaQuery.addEventListener("change", updatePointerType);
-
-    return () => {
-      mediaQuery.removeEventListener("change", updatePointerType);
-    };
-  }, []);
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
@@ -71,36 +54,10 @@ export function PanelArea({ panels, onReorder, onClose }: PanelAreaProps) {
     ? panels.findIndex((panel) => panel.id === activeId)
     : -1;
   const overIndex = overId ? panels.findIndex((panel) => panel.id === overId) : -1;
-
-  const stopAutoPan = () => {
-    scrollVelocityRef.current = 0;
-
-    if (animationFrameRef.current !== null) {
-      cancelAnimationFrame(animationFrameRef.current);
-      animationFrameRef.current = null;
-    }
-  };
-
-  const startAutoPan = () => {
-    if (animationFrameRef.current !== null) {
-      return;
-    }
-
-    const tick = () => {
-      const scroller = scrollerRef.current;
-      const velocity = scrollVelocityRef.current;
-
-      if (!scroller || velocity === 0) {
-        animationFrameRef.current = null;
-        return;
-      }
-
-      scroller.scrollLeft += velocity;
-      animationFrameRef.current = requestAnimationFrame(tick);
-    };
-
-    animationFrameRef.current = requestAnimationFrame(tick);
-  };
+  const { handleDragMove, stopAutoPan } = useHorizontalAutoPan({
+    enabled: coarsePointer && activeId !== null,
+    scrollerRef,
+  });
 
   const resetDragState = () => {
     stopAutoPan();
@@ -118,61 +75,6 @@ export function PanelArea({ panels, onReorder, onClose }: PanelAreaProps) {
     setOverId((over?.id as PanelId | null) ?? null);
   };
 
-  const handleDragMove = ({ active, delta }: DragMoveEvent) => {
-    if (!coarsePointer || !activeId) {
-      return;
-    }
-
-    const scroller = scrollerRef.current;
-    const translated = active.rect.current.translated;
-    const horizontalDelta = Math.abs(delta.x);
-
-    if (!scroller || !translated) {
-      return;
-    }
-
-    const rect = scroller.getBoundingClientRect();
-    const centerX = translated.left + translated.width / 2;
-    const startThreshold = 56;
-    const stopThreshold = 120;
-    const dragThreshold = 28;
-    const maxVelocity = 7;
-    let nextVelocity = 0;
-
-    if (horizontalDelta < dragThreshold) {
-      stopAutoPan();
-      return;
-    }
-
-    if (centerX > rect.right - startThreshold) {
-      const distanceIntoEdge = centerX - (rect.right - startThreshold);
-      nextVelocity = Math.min(maxVelocity, (distanceIntoEdge / startThreshold) * maxVelocity);
-    } else if (centerX < rect.left + startThreshold) {
-      const distanceIntoEdge = rect.left + startThreshold - centerX;
-      nextVelocity = -Math.min(maxVelocity, (distanceIntoEdge / startThreshold) * maxVelocity);
-    } else if (
-      centerX > rect.left + stopThreshold &&
-      centerX < rect.right - stopThreshold
-    ) {
-      nextVelocity = 0;
-    }
-
-    scrollVelocityRef.current = nextVelocity;
-
-    if (nextVelocity === 0) {
-      stopAutoPan();
-      return;
-    }
-
-    startAutoPan();
-  };
-
-  useEffect(() => {
-    return () => {
-      stopAutoPan();
-    };
-  }, []);
-
   const getDropIndicator = (panelId: PanelId) => {
     if (!coarsePointer || !activeId || !overId || panelId !== overId || activeId === overId) {
       return null;
@@ -185,7 +87,7 @@ export function PanelArea({ panels, onReorder, onClose }: PanelAreaProps) {
     <section
       ref={scrollerRef}
       className={[
-        "ml-28 h-full min-w-0 flex-1 overscroll-x-contain scrollbar-none",
+        "ml-[var(--sidebar-width)] h-full min-w-0 flex-1 overscroll-x-contain scrollbar-none",
         coarsePointer && activeId ? "overflow-x-hidden touch-none" : "overflow-x-auto",
         activeId ? "" : "snap-x snap-mandatory",
       ].join(" ")}
@@ -224,7 +126,7 @@ export function PanelArea({ panels, onReorder, onClose }: PanelAreaProps) {
         {coarsePointer ? (
           <DragOverlay>
             {activePanel ? (
-              <div className="w-[calc(100vw-7rem)] md:w-[320px]">
+              <div className="w-[var(--panel-mobile-width)] md:w-[var(--panel-desktop-width)]">
                 <PanelColumnPreview panel={activePanel} onClose={onClose} />
               </div>
             ) : null}

@@ -19,7 +19,7 @@ export function Sidebar({ panels, openIds, onToggle }: SidebarProps) {
   } as const;
 
   return (
-    <aside className="fixed left-0 top-0 flex h-screen w-28 flex-col border-r border-[var(--line)] bg-white px-4 py-12">
+    <aside className="fixed left-0 top-0 flex h-screen w-[var(--sidebar-width)] flex-col border-r border-[var(--line)] bg-white px-4 py-12">
       <nav className="flex flex-col gap-10">
         {panels.map((panel) => {
           const isOpen = openIds.includes(panel.id);

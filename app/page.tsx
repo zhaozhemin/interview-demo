@@ -1,42 +1,18 @@
 "use client";
 
-import { useState } from "react";
-import type { DragEndEvent } from "@dnd-kit/core";
-import { arrayMove } from "@dnd-kit/sortable";
 import { PanelArea } from "@/components/panel-area";
 import { Sidebar } from "@/components/sidebar";
-import { panels, type PanelId } from "@/lib/panels";
+import { usePanelLayout } from "@/lib/use-panel-layout";
 
 export default function Home() {
-  const [orderedPanels, setOrderedPanels] = useState(panels);
-  const [openIds, setOpenIds] = useState<PanelId[]>(panels.map((panel) => panel.id));
-
-  const togglePanel = (id: PanelId) => {
-    setOpenIds((current) =>
-      current.includes(id)
-        ? current.filter((panelId) => panelId !== id)
-        : [...current, id],
-    );
-  };
-
-  const closePanel = (id: PanelId) => {
-    setOpenIds((current) => current.filter((panelId) => panelId !== id));
-  };
-
-  const handleDragEnd = ({ active, over }: DragEndEvent) => {
-    if (!over || active.id === over.id) {
-      return;
-    }
-
-    setOrderedPanels((current) => {
-      const oldIndex = current.findIndex((panel) => panel.id === active.id);
-      const newIndex = current.findIndex((panel) => panel.id === over.id);
-
-      return arrayMove(current, oldIndex, newIndex);
-    });
-  };
-
-  const visiblePanels = orderedPanels.filter((panel) => openIds.includes(panel.id));
+  const {
+    orderedPanels,
+    openIds,
+    visiblePanels,
+    togglePanel,
+    closePanel,
+    reorderPanels,
+  } = usePanelLayout();
 
   return (
     <main className="h-screen overflow-hidden bg-white text-black">
@@ -44,7 +20,7 @@ export default function Home() {
         <Sidebar panels={orderedPanels} openIds={openIds} onToggle={togglePanel} />
         <PanelArea
           panels={visiblePanels}
-          onReorder={handleDragEnd}
+          onReorder={reorderPanels}
           onClose={closePanel}
         />
       </div>
