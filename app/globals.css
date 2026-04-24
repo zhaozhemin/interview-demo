@@ -7,7 +7,7 @@
   --muted: #b8b8b8;
   --line: #e7e7e7;
   --tab: #f7f7f7;
-  --sidebar-width: 7rem;
+  --sidebar-width: 4.75rem;
   --panel-mobile-width: calc(100vw - var(--sidebar-width));
   --panel-desktop-width: 320px;
 }

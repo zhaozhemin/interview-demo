@@ -42,11 +42,11 @@ export function PanelColumnFrame({
     >
       <header
         {...headerProps}
-        className="flex h-11 cursor-grab touch-none items-center justify-center border-b border-[var(--line)] bg-[var(--tab)] px-3 md:px-4 active:cursor-grabbing"
+        className="flex h-8 cursor-grab touch-none items-center justify-center border-b border-[var(--line)] bg-[var(--tab)] px-3 md:px-4 active:cursor-grabbing"
       >
         <div className="grid w-full grid-cols-[1fr_auto_1fr] items-center gap-2">
           <div />
-          <span className="justify-self-center text-[18px] leading-none text-black">
+          <span className="justify-self-center text-[16px] leading-none text-black">
             {panel.label}
           </span>
           <button
@@ -64,7 +64,7 @@ export function PanelColumnFrame({
               onClose(panel.id);
             }}
           >
-            <XMarkIcon aria-hidden className="size-5" />
+            <XMarkIcon aria-hidden className="size-4" />
           </button>
         </div>
       </header>

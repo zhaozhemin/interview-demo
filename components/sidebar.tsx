@@ -19,8 +19,8 @@ export function Sidebar({ panels, openIds, onToggle }: SidebarProps) {
   } as const;
 
   return (
-    <aside className="fixed left-0 top-0 flex h-screen w-[var(--sidebar-width)] flex-col border-r border-[var(--line)] bg-white px-4 py-12">
-      <nav className="flex flex-col gap-10">
+    <aside className="fixed left-0 top-0 flex h-screen w-[var(--sidebar-width)] flex-col border-r border-[var(--line)] bg-white px-2 py-8">
+      <nav className="flex flex-col gap-6">
         {panels.map((panel) => {
           const isOpen = openIds.includes(panel.id);
           const Icon = icons[panel.id];
@@ -31,7 +31,7 @@ export function Sidebar({ panels, openIds, onToggle }: SidebarProps) {
               type="button"
               onClick={() => onToggle(panel.id)}
               className={[
-                "flex flex-col items-center gap-2 text-center text-[22px] leading-none transition-colors",
+                "flex flex-col items-center gap-1 text-center text-[15px] leading-none transition-colors",
                 isOpen ? "text-black" : "text-[var(--muted)]",
               ].join(" ")}
             >
