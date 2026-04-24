@@ -31,14 +31,14 @@ export function PanelArea({ panels, onReorder, onClose }: PanelAreaProps) {
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 120,
-        tolerance: 12,
+        delay: 80,
+        tolerance: 8,
       },
     }),
   );
 
   return (
-    <section className="ml-28 h-full min-w-0 flex-1 overflow-x-auto scrollbar-none">
+    <section className="ml-28 h-full min-w-0 flex-1 overflow-x-auto overscroll-x-contain snap-x snap-mandatory scrollbar-none">
       <DndContext
         id="panel-area-dnd"
         sensors={sensors}
