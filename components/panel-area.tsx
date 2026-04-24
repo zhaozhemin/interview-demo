@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -51,6 +51,7 @@ export function PanelArea({ panels, onReorder, onClose }: PanelAreaProps) {
   const activePanel = activeId
     ? panels.find((panel) => panel.id === activeId) ?? null
     : null;
+  const sortableItems = useMemo(() => panels.map((panel) => panel.id), [panels]);
   const activeIndex = activeId
     ? panels.findIndex((panel) => panel.id === activeId)
     : -1;
@@ -114,7 +115,7 @@ export function PanelArea({ panels, onReorder, onClose }: PanelAreaProps) {
         }}
       >
         <SortableContext
-          items={panels.map((panel) => panel.id)}
+          items={sortableItems}
           strategy={horizontalListSortingStrategy}
         >
           <div className="flex h-full min-w-full w-max">
