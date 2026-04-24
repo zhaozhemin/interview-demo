@@ -47,7 +47,22 @@ Implement a React demo based on `s.png`.
 - On touch devices, tapping the sidebar menu items must reliably toggle their corresponding panels.
 - On touch devices, tapping the close button in a panel tab bar must reliably close that panel.
 - Touch interactions for toggle, swipe, and close take priority over drag sensitivity on mobile.
-- Mobile drag-and-drop is best effort for this demo and may feel less smooth than desktop when combined with horizontal scrolling.
+- On touch devices, drag-and-drop uses a different interaction model than desktop:
+  - The visible list stays visually static during drag.
+  - The dragged panel is rendered in an overlay.
+  - The original slot remains in place and is dimmed while dragging.
+  - A full-height before/after indicator marks the current drop target.
+  - Scroll snapping is disabled only while a drag is active.
+- On touch devices, horizontal movement during drag uses controlled edge auto-pan instead of native momentum scrolling:
+  - Auto-pan starts only after a deliberate horizontal drag.
+  - Auto-pan speed is capped to keep scrolling readable and easier to stop.
+- Mobile drag-and-drop is still best effort for this demo and may feel less smooth than desktop when combined with horizontal scrolling.
+
+## Desktop Notes
+
+- On fine-pointer devices, drag-and-drop keeps the default sortable behavior where sibling columns move live during drag.
+- The actively dragged desktop column uses a stronger shadow and rounder corners.
+- Each column renders both left and right borders so the adjacent column still shows a visible edge when another column is dragged away.
 
 ## Development Notes
 
@@ -58,4 +73,4 @@ Implement a React demo based on `s.png`.
 
 - Panel content is empty for this demo.
 - Desktop drag-and-drop works.
-- Mobile drag-and-drop is still under investigation on real devices.
+- Mobile drag-and-drop uses a separate implementation path from desktop and still needs validation on real devices.
