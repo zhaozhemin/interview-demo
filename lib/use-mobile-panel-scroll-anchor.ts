@@ -1,23 +1,23 @@
 import { useEffect, useLayoutEffect, useRef, type RefObject } from "react";
 import type { Panel } from "@/lib/panels";
-import type { OpenFocusRequest } from "@/lib/use-panel-layout";
+import type { PanelFocusRequest } from "@/lib/use-panel-layout";
 
 type UseMobilePanelScrollAnchorOptions = {
   enabled: boolean;
   panels: Panel[];
-  openFocusRequest: OpenFocusRequest | null;
+  panelFocusRequest: PanelFocusRequest | null;
   scrollerRef: RefObject<HTMLElement | null>;
 };
 
 export function useMobilePanelScrollAnchor({
   enabled,
   panels,
-  openFocusRequest,
+  panelFocusRequest,
   scrollerRef,
 }: UseMobilePanelScrollAnchorOptions) {
   const previousPanelsRef = useRef(panels);
   const lastScrollLeftRef = useRef(0);
-  const handledOpenFocusSequenceRef = useRef<number | null>(null);
+  const handledFocusSequenceRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (!enabled) {
@@ -63,17 +63,17 @@ export function useMobilePanelScrollAnchor({
     };
 
     if (
-      openFocusRequest &&
-      handledOpenFocusSequenceRef.current !== openFocusRequest.sequence
+      panelFocusRequest &&
+      handledFocusSequenceRef.current !== panelFocusRequest.sequence
     ) {
-      handledOpenFocusSequenceRef.current = openFocusRequest.sequence;
+      handledFocusSequenceRef.current = panelFocusRequest.sequence;
 
-      const openedIndex = panels.findIndex(
-        (panel) => panel.id === openFocusRequest.id,
+      const focusedIndex = panels.findIndex(
+        (panel) => panel.id === panelFocusRequest.id,
       );
 
-      if (openedIndex !== -1) {
-        scrollToIndex(openedIndex);
+      if (focusedIndex !== -1) {
+        scrollToIndex(focusedIndex);
       }
 
       return;
@@ -95,7 +95,7 @@ export function useMobilePanelScrollAnchor({
 
       scrollToIndex(preservedIndex === -1 ? fallbackIndex : preservedIndex);
     }
-  }, [enabled, openFocusRequest, panels, scrollerRef]);
+  }, [enabled, panelFocusRequest, panels, scrollerRef]);
 
   useEffect(() => {
     previousPanelsRef.current = panels;

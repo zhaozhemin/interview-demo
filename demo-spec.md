@@ -107,7 +107,7 @@ Implement a React demo based on `s.png`.
   - `useMobileLayout` owns breakpoint detection for the mobile layout path
   - `useMobilePanelScrollAnchor` owns mobile panel scroll reconciliation for opening, closing, and cross-browser `scrollLeft` behavior
   - `useHorizontalAutoPan` owns mobile edge auto-pan
-- `usePanelLayout` emits an `openFocusRequest` with a monotonically increasing `sequence` whenever a closed panel is opened. The sequence lets the scroll anchor hook handle repeated opens of the same panel id across time.
+- `usePanelLayout` emits a `panelFocusRequest` with a monotonically increasing `sequence` whenever a closed panel is opened or a visible panel is reordered. The sequence lets the scroll anchor hook handle repeated focus requests for the same panel id across time.
 - `useMobilePanelScrollAnchor` intentionally separates its effects:
   - a normal effect tracks the latest `scrollLeft`
   - a layout effect performs pre-paint scroll correction after visible panels change

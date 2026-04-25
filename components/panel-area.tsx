@@ -16,7 +16,7 @@ import {
   horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import type { Panel, PanelId } from "@/lib/panels";
-import type { OpenFocusRequest } from "@/lib/use-panel-layout";
+import type { PanelFocusRequest } from "@/lib/use-panel-layout";
 import { PanelColumn } from "@/components/panel-column";
 import { PanelColumnPreview } from "@/components/panel-column-preview";
 import { useHorizontalAutoPan } from "@/lib/use-horizontal-auto-pan";
@@ -25,14 +25,14 @@ import { useMobileLayout } from "@/lib/use-mobile-layout";
 
 type PanelAreaProps = {
   panels: Panel[];
-  openFocusRequest: OpenFocusRequest | null;
+  panelFocusRequest: PanelFocusRequest | null;
   onReorder: (event: DragEndEvent) => void;
   onClose: (id: PanelId) => void;
 };
 
 export function PanelArea({
   panels,
-  openFocusRequest,
+  panelFocusRequest,
   onReorder,
   onClose,
 }: PanelAreaProps) {
@@ -95,7 +95,7 @@ export function PanelArea({
   useMobilePanelScrollAnchor({
     enabled: mobileLayout && activeId === null,
     panels,
-    openFocusRequest,
+    panelFocusRequest,
     scrollerRef,
   });
 
