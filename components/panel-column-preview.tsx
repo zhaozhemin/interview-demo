@@ -10,5 +10,11 @@ export function PanelColumnPreview({
   panel,
   onClose,
 }: PanelColumnPreviewProps) {
-  return <PanelColumnFrame panel={panel} onClose={onClose} isOverlay />;
+  return (
+    <PanelColumnFrame
+      panel={panel}
+      onClose={onClose}
+      isDragging
+    />
+  );
 }

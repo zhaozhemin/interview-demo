@@ -5,11 +5,13 @@ import {
   MouseSensor,
   TouchSensor,
   closestCenter,
+  defaultDropAnimationSideEffects,
   useSensor,
   useSensors,
   type DragEndEvent,
   type DragOverEvent,
   type DragStartEvent,
+  type DropAnimation,
 } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -28,6 +30,18 @@ type PanelAreaProps = {
   panelFocusRequest: PanelFocusRequest | null;
   onReorder: (event: DragEndEvent) => void;
   onClose: (id: PanelId) => void;
+};
+
+const dropAnimation: DropAnimation = {
+  duration: 200,
+  easing: "ease",
+  sideEffects: defaultDropAnimationSideEffects({
+    styles: {
+      active: {
+        opacity: "0",
+      },
+    },
+  }),
 };
 
 export function PanelArea({
@@ -139,15 +153,16 @@ export function PanelArea({
             ))}
           </div>
         </SortableContext>
-        {mobileLayout ? (
-          <DragOverlay>
-            {activePanel ? (
-              <div className="w-[var(--panel-mobile-width)] md:w-[var(--panel-desktop-width)]">
-                <PanelColumnPreview panel={activePanel} onClose={onClose} />
-              </div>
-            ) : null}
-          </DragOverlay>
-        ) : null}
+        <DragOverlay dropAnimation={dropAnimation}>
+          {activePanel ? (
+            <div className="h-full w-[var(--panel-mobile-width)] md:w-full">
+              <PanelColumnPreview
+                panel={activePanel}
+                onClose={onClose}
+              />
+            </div>
+          ) : null}
+        </DragOverlay>
       </DndContext>
     </section>
   );

@@ -10,7 +10,6 @@ type PanelColumnFrameProps = {
   headerProps?: HTMLAttributes<HTMLElement>;
   dropIndicator?: DropIndicator;
   sourceVisible?: boolean;
-  isOverlay?: boolean;
   isDragging?: boolean;
 };
 
@@ -20,7 +19,6 @@ export function PanelColumnFrame({
   headerProps,
   dropIndicator = null,
   sourceVisible = true,
-  isOverlay = false,
   isDragging = false,
 }: PanelColumnFrameProps) {
   return (
@@ -34,9 +32,6 @@ export function PanelColumnFrame({
           ? "after:absolute after:inset-y-0 after:right-0 after:w-1 after:translate-x-1/2 after:bg-black"
           : "",
         sourceVisible ? "" : "opacity-30",
-        isOverlay
-          ? "shadow-2xl ring-1 ring-black/10 [backface-visibility:hidden]"
-          : "",
         isDragging ? "md:overflow-hidden md:rounded-3xl" : "",
       ].join(" ")}
     >

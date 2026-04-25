@@ -39,9 +39,12 @@ export function PanelColumn({
     staticDuringDrag
       ? ""
       : isDragging
-        ? "z-10 overflow-hidden opacity-85 shadow-xl md:rounded-3xl"
+        ? "z-10"
         : "",
   ].join(" ");
+
+  const sourceVisible =
+    !activeId || activeId !== panel.id ? true : staticDuringDrag ? false : !isDragging;
 
   return (
     <div ref={setNodeRef} style={style} className={className}>
@@ -50,8 +53,7 @@ export function PanelColumn({
         onClose={onClose}
         headerProps={{ ...attributes, ...listeners }}
         dropIndicator={dropIndicator}
-        sourceVisible={!staticDuringDrag || activeId !== panel.id}
-        isDragging={!staticDuringDrag && isDragging}
+        sourceVisible={sourceVisible}
       />
     </div>
   );
