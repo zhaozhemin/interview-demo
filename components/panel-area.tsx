@@ -16,22 +16,29 @@ import {
   horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import type { Panel, PanelId } from "@/lib/panels";
+import type { OpenFocusRequest } from "@/lib/use-panel-layout";
 import { PanelColumn } from "@/components/panel-column";
 import { PanelColumnPreview } from "@/components/panel-column-preview";
-import { useCoarsePointer } from "@/lib/use-coarse-pointer";
 import { useHorizontalAutoPan } from "@/lib/use-horizontal-auto-pan";
-import { usePanelViewportAnchor } from "@/lib/use-panel-viewport-anchor";
+import { useMobilePanelScrollAnchor } from "@/lib/use-mobile-panel-scroll-anchor";
+import { useMobileLayout } from "@/lib/use-mobile-layout";
 
 type PanelAreaProps = {
   panels: Panel[];
+  openFocusRequest: OpenFocusRequest | null;
   onReorder: (event: DragEndEvent) => void;
   onClose: (id: PanelId) => void;
 };
 
-export function PanelArea({ panels, onReorder, onClose }: PanelAreaProps) {
+export function PanelArea({
+  panels,
+  openFocusRequest,
+  onReorder,
+  onClose,
+}: PanelAreaProps) {
   const [activeId, setActiveId] = useState<PanelId | null>(null);
   const [overId, setOverId] = useState<PanelId | null>(null);
-  const coarsePointer = useCoarsePointer();
+  const mobileLayout = useMobileLayout();
   const scrollerRef = useRef<HTMLElement | null>(null);
 
   const sensors = useSensors(
@@ -57,7 +64,7 @@ export function PanelArea({ panels, onReorder, onClose }: PanelAreaProps) {
     : -1;
   const overIndex = overId ? panels.findIndex((panel) => panel.id === overId) : -1;
   const { handleDragMove, stopAutoPan } = useHorizontalAutoPan({
-    enabled: coarsePointer && activeId !== null,
+    enabled: mobileLayout && activeId !== null,
     scrollerRef,
   });
 
@@ -78,16 +85,17 @@ export function PanelArea({ panels, onReorder, onClose }: PanelAreaProps) {
   };
 
   const getDropIndicator = (panelId: PanelId) => {
-    if (!coarsePointer || !activeId || !overId || panelId !== overId || activeId === overId) {
+    if (!mobileLayout || !activeId || !overId || panelId !== overId || activeId === overId) {
       return null;
     }
 
     return overIndex > activeIndex ? "after" : "before";
   };
 
-  usePanelViewportAnchor({
-    enabled: coarsePointer && activeId === null,
+  useMobilePanelScrollAnchor({
+    enabled: mobileLayout && activeId === null,
     panels,
+    openFocusRequest,
     scrollerRef,
   });
 
@@ -96,7 +104,7 @@ export function PanelArea({ panels, onReorder, onClose }: PanelAreaProps) {
       ref={scrollerRef}
       className={[
         "ml-[var(--sidebar-width)] h-full min-w-0 flex-1 overscroll-x-contain scrollbar-none",
-        coarsePointer && activeId ? "overflow-x-hidden touch-none" : "overflow-x-auto",
+        mobileLayout && activeId ? "overflow-x-hidden touch-none" : "overflow-x-auto",
         activeId ? "" : "snap-x snap-mandatory",
       ].join(" ")}
     >
@@ -124,14 +132,14 @@ export function PanelArea({ panels, onReorder, onClose }: PanelAreaProps) {
                 key={panel.id}
                 panel={panel}
                 onClose={onClose}
-                staticDuringDrag={coarsePointer && activeId !== null}
+                staticDuringDrag={mobileLayout && activeId !== null}
                 dropIndicator={getDropIndicator(panel.id)}
                 activeId={activeId}
               />
             ))}
           </div>
         </SortableContext>
-        {coarsePointer ? (
+        {mobileLayout ? (
           <DragOverlay>
             {activePanel ? (
               <div className="w-[var(--panel-mobile-width)] md:w-[var(--panel-desktop-width)]">

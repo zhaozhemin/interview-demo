@@ -41,6 +41,22 @@ Implement a React demo based on `s.png`.
 - On small screens, the panel area scrolls horizontally from left to right.
 - On small screens, each visible panel column fills the available panel viewport width rather than staying at a narrow fixed width.
 - On small screens, horizontal scrolling snaps by panel column.
+- The mobile panel behavior is driven by the responsive layout breakpoint, not by pointer type. A narrow desktop browser window should use the same one-panel-per-page scroll logic as a mobile device.
+- The current mobile breakpoint is the Tailwind `md` boundary: below `768px`.
+
+## Mobile Scroll Anchoring
+
+- Mobile scroll anchoring is handled explicitly because browsers differ in how they preserve or clamp `scrollLeft` when columns are added or removed, especially Safari.
+- When a closed panel is opened from the sidebar, focus moves to that newly opened panel.
+- The opened panel scroll target is computed from its position in the current visible panel list:
+  - `scrollLeft = visibleIndex * scroller.clientWidth`
+- When a visible panel is closed, the hook preserves the previously focused panel if it still exists.
+- If the previously focused panel was the panel that closed, focus moves to the nearest remaining panel index.
+- Previous focus is derived from the last known mobile scroll offset:
+  - `previousFocusedIndex = round(lastScrollLeft / panelWidth)`
+  - the index is clamped into the previous visible panel list to tolerate fractional offsets, resize, and stale browser scroll values.
+- Scroll correction that writes `scrollLeft` must run in a layout effect so the browser does not paint an intermediate jump.
+- Passive scroll tracking and updating the previous panel list can use normal effects because they do not need to block paint.
 
 ## Mobile Notes
 
@@ -88,8 +104,14 @@ Implement a React demo based on `s.png`.
 - `PanelArea` keeps drag lifecycle orchestration, while smaller extracted units own focused behavior:
   - `PanelColumnFrame` renders the shared panel shell and tab bar
   - `PanelColumnPreview` renders the drag overlay preview
-  - `useCoarsePointer` owns pointer-type detection
+  - `useMobileLayout` owns breakpoint detection for the mobile layout path
+  - `useMobilePanelScrollAnchor` owns mobile panel scroll reconciliation for opening, closing, and cross-browser `scrollLeft` behavior
   - `useHorizontalAutoPan` owns mobile edge auto-pan
+- `usePanelLayout` emits an `openFocusRequest` with a monotonically increasing `sequence` whenever a closed panel is opened. The sequence lets the scroll anchor hook handle repeated opens of the same panel id across time.
+- `useMobilePanelScrollAnchor` intentionally separates its effects:
+  - a normal effect tracks the latest `scrollLeft`
+  - a layout effect performs pre-paint scroll correction after visible panels change
+  - a normal effect records the current panel list for the next comparison
 - Shared layout sizing is centralized in CSS custom properties in `app/globals.css`:
   - `--sidebar-width`
   - `--panel-mobile-width`

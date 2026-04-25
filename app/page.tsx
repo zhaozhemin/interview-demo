@@ -9,6 +9,7 @@ export default function Home() {
     orderedPanels,
     openIds,
     visiblePanels,
+    openFocusRequest,
     togglePanel,
     closePanel,
     reorderPanels,
@@ -20,6 +21,7 @@ export default function Home() {
         <Sidebar panels={orderedPanels} openIds={openIds} onToggle={togglePanel} />
         <PanelArea
           panels={visiblePanels}
+          openFocusRequest={openFocusRequest}
           onReorder={reorderPanels}
           onClose={closePanel}
         />

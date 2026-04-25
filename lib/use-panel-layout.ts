@@ -3,16 +3,30 @@ import type { DragEndEvent } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import { panels, type Panel, type PanelId } from "@/lib/panels";
 
+export type OpenFocusRequest = {
+  id: PanelId;
+  sequence: number;
+};
+
 export function usePanelLayout() {
   const [orderedPanels, setOrderedPanels] = useState(panels);
   const [openIds, setOpenIds] = useState<PanelId[]>(panels.map((panel) => panel.id));
+  const [openFocusRequest, setOpenFocusRequest] =
+    useState<OpenFocusRequest | null>(null);
 
   const togglePanel = (id: PanelId) => {
-    setOpenIds((current) =>
-      current.includes(id)
-        ? current.filter((panelId) => panelId !== id)
-        : [...current, id],
-    );
+    setOpenIds((current) => {
+      if (current.includes(id)) {
+        return current.filter((panelId) => panelId !== id);
+      }
+
+      setOpenFocusRequest((request) => ({
+        id,
+        sequence: (request?.sequence ?? 0) + 1,
+      }));
+
+      return [...current, id];
+    });
   };
 
   const closePanel = (id: PanelId) => {
@@ -48,6 +62,7 @@ export function usePanelLayout() {
     orderedPanels,
     openIds,
     visiblePanels,
+    openFocusRequest,
     togglePanel,
     closePanel,
     reorderPanels,
